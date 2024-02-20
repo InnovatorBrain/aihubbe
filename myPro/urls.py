@@ -28,4 +28,6 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("auth/", include("auth_account.urls")),
+    path("nlp/", include("chatgpt.urls")),
+    path("gemini/", include("gemini.urls")),
 ]
