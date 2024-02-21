@@ -1,41 +1,46 @@
-from django.http import HttpResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from openai import OpenAI
+from .models import ChatUser
 import os
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import AllowAny
+from .serializers import MessageSerializer
 
+class ChatAPIView(APIView):
+    authentication_classes = [] 
+    permission_classes = [AllowAny]
+    queryset = ChatUser.objects.all()
 
-"""
-    TEXT-TO-TEXT
-"""
+    def get_queryset(self):
+        return self.queryset
 
-
-def index(request):
-
-    client = OpenAI(
-        # OPENAI_API_KEY
-        api_key=os.getenv("OPENAI_NLP_KEY"),
-    )
-
-    def display_chat_history(messages):
-        for message in messages:
-            print(f"{message['role'].capitalize()}: {message['content']}")
-
-    def get_assistant_response(messages):
+    def get_assistant_response(self, messages):
+        client = OpenAI(api_key=os.getenv("OPENAI_NLP_KEY"))
         r = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": m["role"], "content": m["content"]} for m in messages],
         )
-        response = r.choices[0].message.content
-        return response
+        return r.choices[0].message.content
 
-    messages = [{"role": "assistant", "content": "How can I help?"}]
+    def get(self, request, *args, **kwargs):
+        # GET method is not supported for this endpoint
+        return Response({"message": "GET method is not supported for this endpoint."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    while True:
-        display_chat_history(messages)
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        user_input = data.get("user_input")
 
-        user_input = input("User: ")
+        if not user_input:
+            return Response({"error": "Missing 'user_input' field in request data."}, status=status.HTTP_400_BAD_REQUEST)
+
+        messages = [{"role": "assistant", "content": "How can I help?"}]
         messages.append({"role": "user", "content": user_input})
-
-        assistant_response = get_assistant_response(messages)
+        assistant_response = self.get_assistant_response(messages)
         messages.append({"role": "assistant", "content": assistant_response})
-        # Display chat from here
-        return HttpResponse(assistant_response)
+
+        response_data = {
+            "messages": messages  
+        }
+        return Response(response_data, status=status.HTTP_200_OK)

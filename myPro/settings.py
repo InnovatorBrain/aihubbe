@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "auth_account",
     "chatgpt",
     "gemini",
+    "elevenlabs",
     ]
 
 MIDDLEWARE = [
