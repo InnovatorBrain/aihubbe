@@ -1,16 +1,19 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.authentication import BasicAuthentication
+import os
 from openai import OpenAI
 from .models import ChatUser
-import os
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import AllowAny
 from .serializers import MessageSerializer
+# Authentication
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 class ChatAPIView(APIView):
-    authentication_classes = [] 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated] 
     queryset = ChatUser.objects.all()
 
     def get_queryset(self):
