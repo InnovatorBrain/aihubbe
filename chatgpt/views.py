@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class ChatAPIView(APIView):
-    permission_classes = [IsAuthenticated] 
+    # permission_classes = [IsAuthenticated] 
     queryset = ChatUser.objects.all()
 
     def get_queryset(self):
